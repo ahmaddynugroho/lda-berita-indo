@@ -10,6 +10,11 @@ packages = [{include = "lda_berita_indo"}]
 python = "^3.10"
 
 
+[tool.poetry.group.dev.dependencies]
+scrapy = "^2.7.1"
+pandas = "^1.5.3"
+yapf = "^0.32.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

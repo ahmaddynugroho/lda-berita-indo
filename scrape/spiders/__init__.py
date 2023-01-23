@@ -2,6 +2,7 @@
 #
 # Please refer to the documentation for information on how to create and manage
 # your spiders.
+import re
 from calendar import monthrange
 
 import scrapy
@@ -9,7 +10,7 @@ import scrapy
 
 class Detik(scrapy.Spider):
     name = 'detik'
-    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
+    dates = [(day + 1, 1, 2022) for day in range(0, monthrange(2022, 1)[1])]
     start_urls = [
         f'https://news.detik.com/indeks/1?date={month:02}/{day:02}/{year}' for day, month, year in dates]
 
@@ -44,6 +45,33 @@ class Kompas(scrapy.Spider):
             }
 
         next_links = response.css('a.paging__link--next')
+        for a in next_links:
+            if 'Next' in a.get():
+                yield response.follow(a, callback=self.parse)
+
+
+class Okezone(scrapy.Spider):
+    name = 'okezone'
+    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
+    start_urls = [
+        f'https://index.okezone.com/bydate/index/{year}/{month:02}/{day:02}/0/' for day, month, year in dates
+    ]
+
+    def parse(self, response):
+        TAG_RE = re.compile(r'<[^>]+>')  # delete html tag
+        headlines = response.css('h4 a').getall()
+        headlines = [TAG_RE.sub('', h).strip() for h in headlines]
+        dates = response.css('.f12').getall()
+        dates = [TAG_RE.sub('', d).strip().split(
+            '|')[1].strip().split(' ') for d in dates]
+        dates = [f'{d[1]} {d[2]} {d[3]}' for d in dates]
+        for date, headline in zip(dates, headlines):
+            yield {
+                'date': date,
+                'headline': headline
+            }
+
+        next_links = response.css('.time a')
         for a in next_links:
             if 'Next' in a.get():
                 yield response.follow(a, callback=self.parse)

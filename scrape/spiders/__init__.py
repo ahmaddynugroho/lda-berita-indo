@@ -156,3 +156,27 @@ class Tribunnews(scrapy.Spider):
         for a in next_links:
             if 'Next' in a.get():
                 yield response.follow(a, callback=self.parse)
+
+
+# Status: Abandoned
+# Reason: Suara only archive news from the last 30 days
+class Suara(scrapy.Spider):
+    name = 'suara'
+    start_urls = [
+        # suara doesn't implement per month index
+        # manually create page for async advantage
+        f'https://www.suara.com/indeks/terkini/all/2022?page={page+1}' for page in range(0, 501)
+    ]
+
+    def parse(self, response):
+        headlines = [
+            h.strip() for h in response.css('.item-inner .post-title a::text').getall()]
+        for headline in headlines:
+            yield {
+                'page': response.request.url.split('=')[-1],
+                'headline': headline}
+
+        # using response.follow make the entire proces synchronous
+        # next_links = response.css('.pagination a')
+        # if next_links:
+        #     yield response.follow(next_links[-1], callback=self.parse)

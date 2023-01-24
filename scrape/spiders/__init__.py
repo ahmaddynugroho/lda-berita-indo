@@ -75,3 +75,29 @@ class Okezone(scrapy.Spider):
         for a in next_links:
             if 'Next' in a.get():
                 yield response.follow(a, callback=self.parse)
+
+
+class Sindonews(scrapy.Spider):
+    name = 'sindonews'
+    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
+    start_urls = [
+        f'https://index.sindonews.com/index/0?t={year}-{month:02}-{day:02}' for day, month, year in dates
+    ]
+
+    def parse(self, response):
+        TAG_RE = re.compile(r'<[^>]+>')  # delete html tag
+        headlines = response.css('.indeks-title a::text').getall()
+        dates = response.css('.mini-info ul')
+        dates = [
+            ' '.join(TAG_RE.sub('', d.get()).split(',')[1].strip().split(' ')[:3]) for d in dates
+        ]
+        for date, headline in zip(dates, headlines):
+            yield {
+                'date': date,
+                'headline': headline
+            }
+
+        next_links = response.css('.pagination a')
+        for a in next_links:
+            if 'fa-angle-right' in a.get():
+                yield response.follow(a, callback=self.parse)

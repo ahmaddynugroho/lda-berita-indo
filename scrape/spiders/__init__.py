@@ -120,3 +120,39 @@ class Tempo(scrapy.Spider):
                 'date': date,
                 'headline': headline
             }
+
+
+class Tribunnews(scrapy.Spider):
+    name = 'tribunnews'
+    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
+    # dates = [(day + 1, 12, 2022) for day in range(0, 3)]
+    start_urls = [
+        f'https://www.tribunnews.com/index-news/news?date={year}-{month}-{day}&page=1' for day, month, year in dates
+    ]
+
+    def parse(self, response):
+        TAG_RE = re.compile(r'<[^>]+>')  # delete html tag
+        headlines = response.css('h3 a').getall()
+        headlines = [TAG_RE.sub('', h).strip() for h in headlines]
+        dates = response.css('time::text').getall()
+        dates = [
+            ' '.join(d.split(',')[1].strip().split(' ')[:3]) for d in dates]
+
+        # prev_date: prevent double date in one crawl. ex: 30 nov in page 40 of 1 dec crawl
+        prev_date = dates[0]
+        break_next = False
+        for date, headline in zip(dates, headlines):
+            if date != prev_date:
+                break_next = True
+                return
+            yield {
+                'date': date,
+                'headline': headline
+            }
+
+        if break_next:
+            return
+        next_links = response.css('.paging a')
+        for a in next_links:
+            if 'Next' in a.get():
+                yield response.follow(a, callback=self.parse)

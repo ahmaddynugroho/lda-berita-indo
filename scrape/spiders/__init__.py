@@ -101,3 +101,22 @@ class Sindonews(scrapy.Spider):
         for a in next_links:
             if 'fa-angle-right' in a.get():
                 yield response.follow(a, callback=self.parse)
+
+
+class Tempo(scrapy.Spider):
+    name = 'tempo'
+    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
+    # dates = [(day + 1, 12, 2022) for day in range(0, 3)]
+    start_urls = [
+        f'https://www.tempo.co/indeks/{year}-{month:02}-{day:02}' for day, month, year in dates
+    ]
+
+    def parse(self, response):
+        headlines = response.css('.title a::text').getall()
+        headlines = [h.strip() for h in headlines]
+        dates = [response.request.url.split('/')[-1]] * len(headlines)
+        for date, headline in zip(dates, headlines):
+            yield {
+                'date': date,
+                'headline': headline
+            }

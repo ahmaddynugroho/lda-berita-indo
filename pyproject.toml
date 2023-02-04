@@ -8,6 +8,9 @@ packages = [{include = "lda_berita_indo"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+ipykernel = "^6.21.0"
+pysastrawi = "^1.2.0"
+pyarrow = "^11.0.0"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -7,12 +7,18 @@ from calendar import monthrange
 
 import scrapy
 
+# KOMPAS DAN TRIBUN CEK AGAIN
+
+DATES = [
+    (day+1, month+1, 2022)
+    for month in range(0, 12)
+    for day in range(0, monthrange(2022, month+1)[1])]
+
 
 class Detik(scrapy.Spider):
     name = 'detik'
-    dates = [(day + 1, 1, 2022) for day in range(0, monthrange(2022, 1)[1])]
     start_urls = [
-        f'https://news.detik.com/indeks/1?date={month:02}/{day:02}/{year}' for day, month, year in dates]
+        f'https://news.detik.com/indeks/1?date={month:02}/{day:02}/{year}' for day, month, year in DATES]
 
     def parse(self, response):
         headlines = response.css('h3 a.media__link::text').getall()
@@ -31,7 +37,10 @@ class Detik(scrapy.Spider):
 
 class Kompas(scrapy.Spider):
     name = 'kompas'
-    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
+    dates = [
+        (day+1, month+1, 2022)
+        for month in range(4, 5)
+        for day in range(0, monthrange(2022, month+1)[1])]
     start_urls = [
         f'https://indeks.kompas.com/?site=all&date={year}-{month:02}-{day:02}&page=1' for day, month, year in dates]
 
@@ -52,9 +61,8 @@ class Kompas(scrapy.Spider):
 
 class Okezone(scrapy.Spider):
     name = 'okezone'
-    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
     start_urls = [
-        f'https://index.okezone.com/bydate/index/{year}/{month:02}/{day:02}/0/' for day, month, year in dates
+        f'https://index.okezone.com/bydate/index/{year}/{month:02}/{day:02}/0/' for day, month, year in DATES
     ]
 
     def parse(self, response):
@@ -79,9 +87,8 @@ class Okezone(scrapy.Spider):
 
 class Sindonews(scrapy.Spider):
     name = 'sindonews'
-    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
     start_urls = [
-        f'https://index.sindonews.com/index/0?t={year}-{month:02}-{day:02}' for day, month, year in dates
+        f'https://index.sindonews.com/index/0?t={year}-{month:02}-{day:02}' for day, month, year in DATES
     ]
 
     def parse(self, response):
@@ -105,10 +112,9 @@ class Sindonews(scrapy.Spider):
 
 class Tempo(scrapy.Spider):
     name = 'tempo'
-    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
     # dates = [(day + 1, 12, 2022) for day in range(0, 3)]
     start_urls = [
-        f'https://www.tempo.co/indeks/{year}-{month:02}-{day:02}' for day, month, year in dates
+        f'https://www.tempo.co/indeks/{year}-{month:02}-{day:02}' for day, month, year in DATES
     ]
 
     def parse(self, response):
@@ -124,10 +130,9 @@ class Tempo(scrapy.Spider):
 
 class Tribunnews(scrapy.Spider):
     name = 'tribunnews'
-    dates = [(day + 1, 12, 2022) for day in range(0, monthrange(2022, 12)[1])]
     # dates = [(day + 1, 12, 2022) for day in range(0, 3)]
     start_urls = [
-        f'https://www.tribunnews.com/index-news/news?date={year}-{month}-{day}&page=1' for day, month, year in dates
+        f'https://www.tribunnews.com/index-news/news?date={year}-{month}-{day}&page=1' for day, month, year in DATES
     ]
 
     def parse(self, response):

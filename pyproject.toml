@@ -1,3 +1,12 @@
+[tool.pyright]
+include = ["scrape", "utils", "notebook"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+    "src/experimental"
+]
+venvPath = "."
+venv = ".venv"
+
 [tool.poetry]
 name = "lda-berita-indo"
 version = "0.1.0"
@@ -21,3 +30,4 @@ autopep8 = "^2.0.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
